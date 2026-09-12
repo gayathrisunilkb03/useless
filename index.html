@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FrameMatch | Meme Clip Finder</title>
+    <script>
+      document.documentElement.dataset.theme = localStorage.getItem('framematch-theme') || 'dark';
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d14;
+        --panel: rgba(22, 25, 39, .86);
+        --panel-solid: #171a29;
+        --text: #f6f7fb;
+        --muted: #9ca4bd;
+        --line: rgba(255, 255, 255, .1);
+        --pink: #ff4f9a;
+        --violet: #9a6bff;
+        --cyan: #43d9e8;
+        --shadow: 0 22px 70px rgba(0, 0, 0, .32);
+      }
+
+      [data-theme="light"] {
+        color-scheme: light;
+        --bg: #f3f5fb;
+        --panel: rgba(255, 255, 255, .88);
+        --panel-solid: #fff;
+        --text: #171827;
+        --muted: #687087;
+        --line: rgba(26, 28, 50, .12);
+        --shadow: 0 22px 70px rgba(73, 52, 128, .14);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        background: var(--bg);
+        background-image: radial-gradient(circle at 9% 0%, rgba(154, 107, 255, .2), transparent 32rem),
+          radial-gradient(circle at 92% 8%, rgba(67, 217, 232, .13), transparent 27rem);
+      }
+      .shell { width: min(1080px, calc(100% - 36px)); margin: 0 auto; padding: 28px 0 64px; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 66px; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.03em; }
+      .brand-mark { display: grid; width: 39px; height: 39px; place-items: center; color: #fff; border-radius: 13px; background: linear-gradient(135deg, var(--pink), var(--violet)); box-shadow: 0 8px 25px rgba(255, 79, 154, .3); }
+      .brand-name { font-size: 1.08rem; }
+      .theme-toggle { border: 1px solid var(--line); padding: 9px 13px; color: var(--text); border-radius: 999px; background: var(--panel); cursor: pointer; font: inherit; font-size: .85rem; }
+      .theme-toggle:hover { border-color: var(--cyan); }
+      .hero { max-width: 700px; margin-bottom: 34px; }
+      .eyebrow { margin: 0 0 14px; color: var(--cyan); font-size: .75rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+      h1 { max-width: 680px; margin: 0; font-size: clamp(2.8rem, 7vw, 5.8rem); line-height: .94; letter-spacing: -.07em; }
+      .hero-copy { max-width: 540px; margin: 22px 0 0; color: var(--muted); font-size: 1.08rem; line-height: 1.6; }
+      .accent { color: var(--pink); }
+      .workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .9fr); gap: 18px; align-items: stretch; }
+      .panel { border: 1px solid var(--line); border-radius: 24px; background: var(--panel); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+      .uploader { padding: 27px; }
+      .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+      h2 { margin: 0; font-size: 1.35rem; letter-spacing: -.03em; }
+      .panel-heading p { margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+      .step { color: var(--pink); font-size: .78rem; font-weight: 800; }
+      .dropzone { display: block; padding: 30px 20px; border: 1px dashed rgba(67, 217, 232, .55); border-radius: 17px; color: var(--muted); text-align: center; background: rgba(67, 217, 232, .055); cursor: pointer; transition: border-color .2s, background .2s, transform .2s; }
+      .dropzone:hover, .dropzone:focus-within { border-color: var(--pink); background: rgba(255, 79, 154, .08); transform: translateY(-2px); }
+      .upload-icon { display: grid; width: 46px; height: 46px; margin: 0 auto 12px; place-items: center; color: #fff; border-radius: 14px; background: linear-gradient(135deg, var(--cyan), var(--violet)); font-size: 1.3rem; }
+      .dropzone strong { display: block; color: var(--text); font-size: 1rem; }
+      .dropzone small { display: block; margin-top: 7px; }
+      input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+      .field { display: block; margin-top: 21px; color: var(--muted); font-size: .82rem; font-weight: 700; }
+      select { width: 100%; margin-top: 8px; border: 1px solid var(--line); padding: 13px 15px; color: var(--text); border-radius: 12px; background: var(--panel-solid); font: inherit; }
+      .submit { width: 100%; margin-top: 22px; border: 0; padding: 14px 18px; color: #fff; border-radius: 12px; background: linear-gradient(100deg, var(--pink), var(--violet)); box-shadow: 0 10px 25px rgba(154, 107, 255, .28); cursor: pointer; font: inherit; font-weight: 800; transition: transform .2s, filter .2s; }
+      .submit:hover { filter: brightness(1.1); transform: translateY(-2px); }
+      .insight { position: relative; min-height: 250px; padding: 27px; overflow: hidden; background: linear-gradient(145deg, rgba(154, 107, 255, .28), rgba(255, 79, 154, .12) 55%, var(--panel)); }
+      .insight::after { content: "✦"; position: absolute; right: 20px; bottom: -26px; color: rgba(255, 255, 255, .08); font-size: 10rem; line-height: 1; }
+      .insight h2 { position: relative; z-index: 1; }
+      .insight p { position: relative; z-index: 1; max-width: 260px; margin-top: 110px; color: var(--muted); line-height: 1.5; }
+      .movie-props { position: absolute; right: 25px; bottom: 23px; z-index: 1; display: flex; gap: 8px; font-size: 1.35rem; transform: rotate(-5deg); }
+      .movie-props span { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: rgba(11, 13, 20, .3); }
+      .results { margin-top: 55px; }
+      .results-header { display: flex; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+      .results-header p { margin: 0; color: var(--muted); font-size: .85rem; }
+      .clip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+      .clip { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: var(--shadow); }
+      .clip video { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: #07080d; }
+      .clip-info { padding: 17px; }
+      .clip strong { display: block; line-height: 1.4; }
+      .clip-kicker { margin-bottom: 8px; color: var(--pink); font-size: .68rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+      .tag { display: inline-block; margin-top: 9px; color: var(--cyan); font-size: .74rem; font-weight: 700; text-transform: capitalize; }
+      .download { display: inline-block; margin-top: 16px; color: var(--pink); font-size: .82rem; font-weight: 800; text-decoration: none; }
+      .download:hover { text-decoration: underline; }
+      .detected { margin-bottom: 18px; border-left: 3px solid var(--cyan); padding: 15px 18px; border-radius: 0 13px 13px 0; background: rgba(67, 217, 232, .09); }
+      .detected-content { display: flex; align-items: center; gap: 16px; }
+      .detected-image { width: 84px; height: 84px; flex: 0 0 84px; border-radius: 12px; object-fit: cover; }
+      .detected-mood { color: var(--pink); text-transform: capitalize; }
+      .detected p { margin: 5px 0 0; color: var(--muted); font-size: .86rem; }
+      .detected a { color: var(--cyan); }
+      @media (max-width: 720px) { .shell { width: min(100% - 24px, 560px); padding-top: 18px; } header { margin-bottom: 48px; } .workspace { grid-template-columns: 1fr; } .insight { min-height: 180px; } .insight p { margin-top: 55px; } .detected-content { align-items: flex-start; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div class="brand"><span class="brand-mark">▶</span><span class="brand-name">FrameMatch da</span></div>
+        <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode">☼ <span>Light mode</span></button>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Cinema comedy department presents</p>
+        <h1>Feeling undu? Find a <span class="accent">scene da.</span></h1>
+        <p class="hero-copy">Oru reaction image upload cheyyu, situation select cheyyu, pinne ningalude face-inu match aaya mass movie moment kandupidikkaam.</p>
+      </section>
+
+      <section class="workspace">
+        <div class="panel uploader">
+          <div class="panel-heading"><div><h2>Scene venam alle?</h2><p>Face upload cheythaal cinema magic start aakum</p></div><span class="step">TAKE 01</span></div>
+          <form action="{{ url_for('analyze') }}" method="post" enctype="multipart/form-data">
+            <label class="dropzone" for="image-upload">
+              <span class="upload-icon">↑</span>
+              <strong id="file-label">Photo ivide drop cheyyu</strong>
+              <small>JPG, PNG or WEBP · hero entry ivide</small>
+              <input id="image-upload" type="file" name="image" accept="image/*" required>
+            </label>
+            <img id="image-preview" class="detected-image" alt="Selected image preview" hidden>
+            <label class="field" for="situation">Ippo enthaanu situation?</label>
+            <select id="situation" name="situation">
+              {% for s in situations %}
+              <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+            <button class="submit" type="submit">OK - Detect mood &nbsp; 🎬</button>
+          </form>
+        </div>
+        <aside class="panel insight"><h2>Popcorn ready aano?<br>Scene varunnu.</h2><p>Machine ningalude expression nokki parayum: “ithinu oru cinema dialogue undallo!”</p><div class="movie-props" aria-hidden="true"><span>🍿</span><span>🎞️</span><span>🎬</span></div></aside>
+      </section>
+
+    {% if detected is defined %}
+    <div class="detected">
+      <div class="detected-content">
+        <img class="detected-image" src="/{{ uploaded }}" alt="Uploaded image classified as {{ detected }}">
+        <div>
+          <strong>Image classified first: <span class="detected-mood">{{ detected }}</span></strong>
+          <p>Now finding the best matching scene. <a href="/{{ uploaded }}" target="_blank" rel="noreferrer">Open original</a></p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if results %}
+    <div class="results">
+      <div class="results-header"><h2>Match aaya scenes 🎞️</h2><p>{{ results|length }} clips ningalkkaayi ready</p></div>
+      <div class="clip-grid">
+        {% for c in results %}
+        <div class="clip">
+          {% if c.clip_path %}
+            <video controls preload="metadata" playsinline onloadedmetadata="this.volume = 1" aria-label="{{ c.movie }} video with audio">
+              <source src="/{{ c.clip_path }}" type="video/mp4">
+              Your browser does not support video.
+            </video>
+            <audio controls preload="metadata" aria-label="{{ c.movie }} audio">
+              <source src="/{{ c.clip_path }}" type="video/mp4">
+              Your browser does not support audio.
+            </audio>
+          {% else %}
+            <div style="aspect-ratio:16/10;display:grid;place-items:center;color:var(--muted)"><em>No clip file</em></div>
+          {% endif %}
+          <div class="clip-info"><div class="clip-kicker">Supporting character of the day</div><strong>{{ c.movie }}</strong><span class="tag">{{ c.emotion }} · {{ c.situation.replace('_', ' ') }}</span>{% if c.clip_path %}<a class="download" href="/{{ c.clip_path }}" download>Clip eduthotte →</a>{% endif %}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    </main>
+    <script>
+      const themeButton = document.querySelector('.theme-toggle');
+      const fileInput = document.querySelector('#image-upload');
+      const fileLabel = document.querySelector('#file-label');
+      const imagePreview = document.querySelector('#image-preview');
+      themeButton.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = nextTheme;
+        localStorage.setItem('framematch-theme', nextTheme);
+        themeButton.innerHTML = nextTheme === 'dark' ? '☼ <span>Light mode</span>' : '☾ <span>Dark mode</span>';
+      });
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        fileLabel.textContent = file?.name || 'Choose an image';
+        if (file) {
+          imagePreview.src = URL.createObjectURL(file);
+          imagePreview.hidden = false;
+        } else {
+          imagePreview.hidden = true;
+        }
+      });
+      if (document.documentElement.dataset.theme === 'light') themeButton.innerHTML = '☾ <span>Dark mode</span>';
+    </script>
+  </body>
+</html>
