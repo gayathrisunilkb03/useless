@@ -1,0 +1,7 @@
+clip_id,movie,emotion,situation,roast_level,clip_path
+CL01,Movie1,sad,breakup,10,clips/breakup.mp4
+CL02,Movie2,happy,food_love,9,clips/foodlove.mp4
+CL03,Movie3,sad,sad,8,clips/sad.mp4
+CL04,Movie4,happy,motor,10,clips/motor.mp4
+CL05,Movie5,happy,comedy,9,clips/comedy.mp4
+CL06,Movie6,happy,thall,8,clips/thall.mp4
